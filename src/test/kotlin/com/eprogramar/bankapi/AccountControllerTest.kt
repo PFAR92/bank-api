@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
@@ -14,18 +15,18 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.AUTO_CONFIGURED)
 class AccountControllerTest {
-
-    @Autowired
-    lateinit var mockMvc: MockMvc
 
     @Autowired
     lateinit var accountRepository: AccountRepository
 
+    @Autowired
+    lateinit var mockMvc: MockMvc
+
     @Test
     fun `teste find all`() {
-        val testAccount = Account(name = "Test", document = "05623514658", phone = "93988562536")
-        accountRepository.save(testAccount)
+        accountRepository.save(Account(name = "Test", document = "05623514658", phone = "93988562536"))
 
         mockMvc.perform(MockMvcRequestBuilders.get("/accounts"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -35,9 +36,6 @@ class AccountControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("\$[0].document").isString)
             .andExpect(MockMvcResultMatchers.jsonPath("\$[0].phone").isString)
             .andDo(MockMvcResultHandlers.print())
-
-        accountRepository.delete(testAccount)
-        Assertions.assertTrue(accountRepository.findById(testAccount.id!!).isEmpty)
     }
 
     @Test
@@ -53,8 +51,6 @@ class AccountControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("\$.phone").value(testAccount.phone))
             .andDo(MockMvcResultHandlers.print())
 
-        accountRepository.delete(testAccount)
-        Assertions.assertTrue(accountRepository.findById(testAccount.id!!).isEmpty())
     }
 
     @Test
@@ -72,8 +68,6 @@ class AccountControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("\$.document").value(testAccount.document))
             .andExpect(MockMvcResultMatchers.jsonPath("\$.phone").value(testAccount.phone))
             .andDo(MockMvcResultHandlers.print())
-
-        accountRepository.deleteByDocument(testAccount.document)
     }
 
     @Test
@@ -98,8 +92,6 @@ class AccountControllerTest {
         Assertions.assertTrue(findById.isPresent)
         Assertions.assertEquals(testAccount.name, findById.get().name)
 
-        accountRepository.deleteByDocument(testAccount.document)
-        Assertions.assertTrue(accountRepository.findById(testAccount.id!!).isEmpty)
     }
 
     @Test
