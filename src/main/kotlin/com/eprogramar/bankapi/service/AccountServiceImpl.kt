@@ -3,11 +3,20 @@ package com.eprogramar.bankapi.service
 import com.eprogramar.bankapi.model.Account
 import com.eprogramar.bankapi.repository.AccountRepository
 import org.springframework.stereotype.Service
+import org.springframework.util.Assert
 import java.util.*
 
 @Service
 class AccountServiceImpl(private val repository: AccountRepository) : AccountService {
     override fun create(account: Account): Account {
+        Assert.hasLength(account.name, "[name] não pode estar em branco")
+        Assert.isTrue(account.name.length >= 5, "[name] deve ter no mínimo 5 caracteres!")
+
+        Assert.hasLength(account.document, "[document] não pode estar em branco")
+        Assert.isTrue(account.document.length >= 11, "[document] deve ter no mínimo 11 caracteres!")
+
+        Assert.hasLength(account.phone, "[phone] não pode estar em branco")
+        Assert.isTrue(account.phone.length >= 11, "[phone] deve ter no mínimo 11 caracteres!")
         return repository.save(account)
     }
 
